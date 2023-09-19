@@ -26,6 +26,20 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: mysecretpassword
+          POSTGRES_DB: simple_bank
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Check out the code into the Go module directory
         uses: actions/checkout@v3
@@ -35,8 +49,11 @@ jobs:
         with:
           go-version: ^1.15
 
-      - name: Run migrations
-        uses: make migrateup
+      - name: Install golang-migrate
+        run: $ curl -L https://github.com/golang-migrate/migrate/releases/download/$version/migrate.$os-$arch.tar.gz | tar xvz
+
+      - name: Run migration
+        run: make migrateup
 
       - name: Test
         run: make test
