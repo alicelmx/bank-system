@@ -34,8 +34,11 @@ jobs:
         with:
           go-version: ^1.15
 
-      - name: Run migrations
-        uses: make migrateup
+      - name: Install golang-migrate
+        run: $ curl -L https://github.com/golang-migrate/migrate/releases/download/$version/migrate.$os-$arch.tar.gz | tar xvz
+
+      - name: Run migration
+        run: make migrateup
 
       - name: Test
         run: make test
