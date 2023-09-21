@@ -11,9 +11,13 @@ import (
 
 // 函数名没有以Test开头，在单元测试中不会被运行
 func createRandomUser(t *testing.T) User {
+	hashedPassword, err := util.HashPassword(util.RandomString(6))
+	require.NoError(t, err)
+
 	arg := CreateUserParams{
 		Username:       util.RandomOwner(),
-		HashedPassword: "secret",
+		HashedPassword: hashedPassword,
+		FullName:       util.RandomOwner(),
 		Email:          util.RandomEmail(),
 	}
 
