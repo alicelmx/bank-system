@@ -6,6 +6,6 @@ metadata:
 data:
   mapUsers: |
     - userarn: arn:aws:iam::346572289462:user/aws-sam-developer
-      username: aws-sam-developer
+      username: github-ci
       groups:
-        - system:system_admin
+        - system:masters
