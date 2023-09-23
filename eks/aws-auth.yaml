@@ -5,7 +5,7 @@ metadata:
   namespace: kube-system
 data:
   mapUsers: |
-    - userarn: arn:aws:iam::346572289462:user/aws-sam-developer
+    - userarn: arn:aws:iam::346572289462:user/github-ci
       username: github-ci
       groups:
         - system:masters
