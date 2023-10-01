@@ -4,17 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	db "github/alicelmx/simplebank/db/sqlc"
 	"github/alicelmx/simplebank/util"
 
 	"github.com/hibiken/asynq"
 	"github.com/rs/zerolog/log"
-	db "github.com/techschool/simplebank/db/sqlc"
 )
 
 const TaskSendVerifyEmail = "task:send_verify_email"
 
 type PayloadSendVerifyEmail struct {
-	Username string `json:"username"`
+	Username string `json:username`
 }
 
 func (distributor *RedisTaskDistributor) DistributeTaskSendVerifyEmail(
@@ -34,7 +34,8 @@ func (distributor *RedisTaskDistributor) DistributeTaskSendVerifyEmail(
 	}
 
 	log.Info().Str("type", task.Type()).Bytes("payload", task.Payload()).
-		Str("queue", info.Queue).Int("max_retry", info.MaxRetry).Msg("enqueued task")
+		Str("queue", info.Queue).Int("max_retry", info.MaxRetry).Msg("enqueue task")
+
 	return nil
 }
 
@@ -46,6 +47,10 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 
 	user, err := processor.store.GetUser(ctx, payload.Username)
 	if err != nil {
+		// 无论何时，保持retry机制，防止报错
+		// if err == sql.ErrNoRows {
+		// 	return fmt.Errorf("user doesn't exist: %w", asynq.SkipRetry)
+		// }
 		return fmt.Errorf("failed to get user: %w", err)
 	}
 
@@ -54,12 +59,12 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 		Email:      user.Email,
 		SecretCode: util.RandomString(32),
 	})
+
 	if err != nil {
 		return fmt.Errorf("failed to create verify email: %w", err)
 	}
 
 	subject := "Welcome to Simple Bank"
-	// TODO: replace this URL with an environment variable that points to a front-end page
 	verifyUrl := fmt.Sprintf("http://localhost:8080/v1/verify_email?email_id=%d&secret_code=%s",
 		verifyEmail.ID, verifyEmail.SecretCode)
 	content := fmt.Sprintf(`Hello %s,<br/>
@@ -68,12 +73,13 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 	`, user.FullName, verifyUrl)
 	to := []string{user.Email}
 
-	err = processor.mailer.SendEmail(subject, content, to, nil, nil, nil)
+	processor.mailer.SendEmail(subject, content, to, nil, nil, nil)
 	if err != nil {
 		return fmt.Errorf("failed to send verify email: %w", err)
 	}
 
 	log.Info().Str("type", task.Type()).Bytes("payload", task.Payload()).
 		Str("email", user.Email).Msg("processed task")
+
 	return nil
 }

@@ -6,7 +6,7 @@ import (
 	"github/alicelmx/simplebank/pb"
 	"github/alicelmx/simplebank/token"
 	"github/alicelmx/simplebank/util"
-	"github/alicelmx/simplebank/val/worker"
+	"github/alicelmx/simplebank/worker"
 )
 
 // Server serves gRPC requests for our banking service.
