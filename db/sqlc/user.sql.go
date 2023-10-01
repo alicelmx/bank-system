@@ -7,7 +7,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -18,13 +19,13 @@ RETURNING username, hashed_password, full_name, email, password_changed_at, crea
 
 type CreateUserParams struct {
 	Username       string `json:"username"`
-	HashedPassword string `json:"hashedPassword"`
-	FullName       string `json:"fullName"`
+	HashedPassword string `json:"hashed_password"`
+	FullName       string `json:"full_name"`
 	Email          string `json:"email"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
+	row := q.db.QueryRow(ctx, createUser,
 		arg.Username,
 		arg.HashedPassword,
 		arg.FullName,
@@ -51,7 +52,7 @@ LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, username)
+	row := q.db.QueryRow(ctx, getUser, username)
 	var i User
 	err := row.Scan(
 		&i.Username,
@@ -80,16 +81,16 @@ RETURNING username, hashed_password, full_name, email, password_changed_at, crea
 `
 
 type UpdateUserParams struct {
-	HashedPassword    sql.NullString `json:"hashedPassword"`
-	PasswordChangedAt sql.NullTime   `json:"passwordChangedAt"`
-	FullName          sql.NullString `json:"fullName"`
-	Email             sql.NullString `json:"email"`
-	IsEmailVerified   sql.NullBool   `json:"isEmailVerified"`
-	Username          string         `json:"username"`
+	HashedPassword    pgtype.Text        `json:"hashed_password"`
+	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
+	FullName          pgtype.Text        `json:"full_name"`
+	Email             pgtype.Text        `json:"email"`
+	IsEmailVerified   pgtype.Bool        `json:"is_email_verified"`
+	Username          string             `json:"username"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUser,
+	row := q.db.QueryRow(ctx, updateUser,
 		arg.HashedPassword,
 		arg.PasswordChangedAt,
 		arg.FullName,
