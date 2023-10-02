@@ -82,10 +82,7 @@ func TestUpdateUserOnlyEmail(t *testing.T) {
 	newEmail := util.RandomEmail()
 	updatedUser, err := testStore.UpdateUser(context.Background(), UpdateUserParams{
 		Username: oldUser.Username,
-		Email: pgtype.Text{
-			String: newEmail,
-			Valid:  true,
-		},
+		Email:    newEmail,
 	})
 
 	require.NoError(t, err)

@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	db "github/alicelmx/simplebank/db/sqlc"
+	"github/alicelmx/simplebank/pb"
 	"github/alicelmx/simplebank/util"
 	"github/alicelmx/simplebank/val"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/techschool/simplebank/pb"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
